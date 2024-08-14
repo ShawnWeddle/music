@@ -71,15 +71,11 @@ export const minorScaleNamesIndex: {[Key in NoteType] : MinorScaleNameType} = {
 export const degreeNames = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh"] as const;
 export type DegreeNameType = typeof degreeNames[number];
 
-export const stringNames = ["Low E", "A", "D", "G", "B", "High E"] as const;
+export const stringNames = ["E", "A", "D", "G", "B"] as const;
 export type StringNameType = typeof stringNames[number];
 
 export const fretFinder = (string: StringNameType, fret: number): NoteType => {
-  if(string === "High E" || string === "Low E") {
-    return "E"
-  } else {
-    const startIndex = Notes.indexOf(string);
+  const startIndex = Notes.indexOf(string);
     const finalIndex = (startIndex + fret) % 12;
     return Notes[finalIndex];
-  }
 }
