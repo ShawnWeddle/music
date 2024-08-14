@@ -79,3 +79,33 @@ export const fretFinder = (string: StringNameType, fret: number): NoteType => {
     const finalIndex = (startIndex + fret) % 12;
     return Notes[finalIndex];
 }
+
+export const buttonNameMap: {[Key in NoteType] : string} = {
+  A:  "A",
+  AB: "A#/Bb",
+  B:  "B",
+  C:  "C",
+  CD: "C#/Db",
+  D:  "D",
+  DE: "D#/Eb",
+  E:  "E",
+  F:  "F",
+  FG: "F#/Gb",
+  G:  "G",
+  GA: "G#/Ab",
+}
+
+/*
+      <Button variant="secondary">A</Button>
+      <Button variant="secondary">A#/Bb</Button>
+      <Button variant="secondary">B</Button>
+      <Button variant="secondary">C</Button>
+      <Button variant="secondary">C#/Db</Button>
+      <Button variant="secondary">D</Button>
+      <Button variant="secondary">D#/Eb</Button>
+      <Button variant="secondary">E</Button>
+      <Button variant="secondary">F</Button>
+      <Button variant="secondary">F#/Gb</Button>
+      <Button variant="secondary">G</Button>
+      <Button variant="secondary">G#/Ab</Button>
+*/

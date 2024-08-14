@@ -30,7 +30,13 @@ type StringQuestionType = {
 
 export type QuestionType = StringQuestionType | ScaleQuestionType;
 
-export const scaleQuestions = (amountQ: number): FullQuizType => {
+export const emptyFullQuiz: FullQuizType = {
+  questions: [],
+  questionsAnswered: 0,
+  questionsCorrect: 0,
+}
+
+export const generateQuestions = (amountQ: number): FullQuizType => {
   if(amountQ < 0 && amountQ > 100){
     return {
       questions: [],
