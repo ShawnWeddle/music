@@ -16,7 +16,7 @@ interface GameBoardProps {
 
 const GameBoard: React.FC<GameBoardProps> = () => {
   const [gameQuestions, setgameQuestions] = useState<FullQuizType>(
-    scaleQuestions(20)
+    scaleQuestions(21)
   );
   const [activeQuestion, setActiveQuestion] = useState<QuestionType>(
     gameQuestions.questions[0]
@@ -32,6 +32,9 @@ const GameBoard: React.FC<GameBoardProps> = () => {
     <Card>
       <CardHeader>
         <CardTitle>{questionString(activeQuestion)}</CardTitle>
+        <CardDescription>
+          Question {gameQuestions.questionsAnswered + 1}/100
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <button>A</button>
