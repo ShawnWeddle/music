@@ -14,3 +14,10 @@ export function ordinate(num:number): String {
       return numToString + "th";
   } 
 }
+
+export function secondsTo(num:number): String {
+  const minutes = Math.floor((num/60)).toString();
+  const leftoverSeconds = num % 60;
+  const lst = leftoverSeconds > 10 ? leftoverSeconds.toString() : "0"+leftoverSeconds.toString()
+  return minutes + ":" + lst;
+}

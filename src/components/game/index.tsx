@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { NoteType, Notes, buttonNameMap } from "@/data";
 import { generateQuestions, emptyFullQuiz } from "@/actions/game.actions";
-import { ordinate } from "@/lib/ordinals";
+import { ordinate, secondsTo } from "@/lib/timing";
 import { useTimeContext } from "@/reducer/TimeContext";
 
 interface GameBoardProps {
@@ -99,8 +99,9 @@ const GameBoard: React.FC<GameBoardProps> = () => {
           <CardDescription className="flex justify-between">
             Question {gameQuestions.questionsAnswered + 1}/
             {gameQuestions.questions.length}
-            {" _ _ _ _ _ "}
-            {timeState.seconds}
+          </CardDescription>
+          <CardDescription className="text-right">
+            {secondsTo(timeState.seconds)}
           </CardDescription>
         </CardHeader>
         <CardContent>
