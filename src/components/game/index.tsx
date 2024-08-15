@@ -18,17 +18,32 @@ interface GameBoardProps {
 }
 
 const GameBoard: React.FC<GameBoardProps> = () => {
-  let questions;
-
+  const [gameMode, setGameMode] = useState<"Pre" | "Mid" | "Post">("Pre");
   const [gameQuestions, setGameQuestions] =
     useState<FullQuizType>(emptyFullQuiz);
   const [activeQuestion, setActiveQuestion] = useState<QuestionType>();
+  const [time, setTime] = useState({
+    start: 0,
+    end: 0,
+    seconds: 0,
+  });
 
   useEffect(() => {
     const gq = generateQuestions(30);
     setGameQuestions(gq);
     setActiveQuestion(gq.questions[0]);
   }, []);
+
+  const intervalCatch = (origin: number) => {
+    setInterval(() => {
+      const newTime = Date.now();
+      setTime({
+        start: origin,
+        end: 0,
+        seconds: Math.round((newTime - origin) / 1000),
+      });
+    }, 1000);
+  };
 
   const questionString = (q: QuestionType): string => {
     if (q.type === "Scale") {
@@ -56,8 +71,6 @@ const GameBoard: React.FC<GameBoardProps> = () => {
       }
       editFull.questionsAnswered++;
 
-      console.log(editFull);
-
       setGameQuestions(editFull);
       setActiveQuestion(gameQuestions.questions[activeIndex + 1]);
     }
@@ -80,20 +93,45 @@ const GameBoard: React.FC<GameBoardProps> = () => {
     return <div className="grid grid-cols-4 gap-1">{buttonList}</div>;
   };
 
+  const MidGameBoard: React.FC = () => {
+    return (
+      <>
+        <CardHeader>
+          <CardTitle>
+            {activeQuestion && questionString(activeQuestion)}
+          </CardTitle>
+          <CardDescription className="flex justify-between">
+            <div>
+              Question {gameQuestions.questionsAnswered + 1}/
+              {gameQuestions.questions.length}
+            </div>
+            <div>{time.seconds}</div>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AnswerButtons />
+        </CardContent>
+      </>
+    );
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          {activeQuestion && questionString(activeQuestion)}
-        </CardTitle>
-        <CardDescription>
-          Question {gameQuestions.questionsAnswered + 1}/
-          {gameQuestions.questions.length}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <AnswerButtons />
-      </CardContent>
+    <Card className="w-full max-w-2xl">
+      {gameMode === "Pre" && (
+        <div className="flex justify-center">
+          <Button
+            onClick={() => {
+              setGameMode("Mid");
+              const newStart = Date.now();
+              setTime({ start: newStart, end: 0, seconds: 0 });
+              intervalCatch(newStart);
+            }}
+          >
+            PLAY
+          </Button>
+        </div>
+      )}
+      {gameMode === "Mid" && <MidGameBoard />}
     </Card>
   );
 };
