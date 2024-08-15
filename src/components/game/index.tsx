@@ -5,13 +5,14 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { NoteType, Notes, buttonNameMap } from "@/data";
 import { generateQuestions, emptyFullQuiz } from "@/actions/game.actions";
+import { ordinate } from "@/lib/ordinals";
+import { useTimeContext } from "@/reducer/TimeContext";
 
 interface GameBoardProps {
   hello?: boolean;
@@ -22,11 +23,7 @@ const GameBoard: React.FC<GameBoardProps> = () => {
   const [gameQuestions, setGameQuestions] =
     useState<FullQuizType>(emptyFullQuiz);
   const [activeQuestion, setActiveQuestion] = useState<QuestionType>();
-  const [time, setTime] = useState({
-    start: 0,
-    end: 0,
-    seconds: 0,
-  });
+  const { timeState, timeDispatch } = useTimeContext();
 
   useEffect(() => {
     const gq = generateQuestions(30);
@@ -34,14 +31,9 @@ const GameBoard: React.FC<GameBoardProps> = () => {
     setActiveQuestion(gq.questions[0]);
   }, []);
 
-  const intervalCatch = (origin: number) => {
+  const intervalCatch = () => {
     setInterval(() => {
-      const newTime = Date.now();
-      setTime({
-        start: origin,
-        end: 0,
-        seconds: Math.round((newTime - origin) / 1000),
-      });
+      timeDispatch("NEW_SECOND");
     }, 1000);
   };
 
@@ -49,7 +41,9 @@ const GameBoard: React.FC<GameBoardProps> = () => {
     if (q.type === "Scale") {
       return `What is the ${q.degree} of the ${q.scale} ${q.mode} scale?`;
     } else {
-      return `What note is the ${q.fret} fret of the ${q.string} string?`;
+      return `What note is the ${ordinate(q.fret)} fret of the ${
+        q.string
+      } string?`;
     }
   };
 
@@ -68,6 +62,8 @@ const GameBoard: React.FC<GameBoardProps> = () => {
       editFull.questions = editQuestions;
       if (editQuestion.correctAnswer === note) {
         editFull.questionsCorrect++;
+      } else {
+        timeDispatch("WRONG_ANSWER");
       }
       editFull.questionsAnswered++;
 
@@ -101,11 +97,10 @@ const GameBoard: React.FC<GameBoardProps> = () => {
             {activeQuestion && questionString(activeQuestion)}
           </CardTitle>
           <CardDescription className="flex justify-between">
-            <div>
-              Question {gameQuestions.questionsAnswered + 1}/
-              {gameQuestions.questions.length}
-            </div>
-            <div>{time.seconds}</div>
+            Question {gameQuestions.questionsAnswered + 1}/
+            {gameQuestions.questions.length}
+            {" _ _ _ _ _ "}
+            {timeState.seconds}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -122,9 +117,8 @@ const GameBoard: React.FC<GameBoardProps> = () => {
           <Button
             onClick={() => {
               setGameMode("Mid");
-              const newStart = Date.now();
-              setTime({ start: newStart, end: 0, seconds: 0 });
-              intervalCatch(newStart);
+              timeDispatch("START_CLOCK");
+              intervalCatch();
             }}
           >
             PLAY
