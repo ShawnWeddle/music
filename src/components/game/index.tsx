@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 import { FullQuizType, QuestionType } from "@/app/questions";
 import {
   Card,
@@ -8,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Guitar, Music, Music3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NoteType, Notes, buttonNameMap } from "@/data";
 import { generateQuestions, emptyFullQuiz } from "@/actions/game.actions";
@@ -23,6 +25,11 @@ const GameBoard: React.FC<GameBoardProps> = () => {
   const [gameQuestions, setGameQuestions] =
     useState<FullQuizType>(emptyFullQuiz);
   const [activeQuestion, setActiveQuestion] = useState<QuestionType>();
+  const [questionTypes, setQuestionTypes] = useState({
+    major: true,
+    minor: true,
+    guitar: true,
+  });
   const { timeState, timeDispatch } = useTimeContext();
 
   useEffect(() => {
@@ -89,6 +96,75 @@ const GameBoard: React.FC<GameBoardProps> = () => {
     return <div className="grid grid-cols-4 gap-1">{buttonList}</div>;
   };
 
+  const PreGameBoard: React.FC = () => {
+    return (
+      <>
+        <CardHeader>
+          <CardTitle>Play the Game</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-3 w-48 gap-1">
+            <button
+              className={cn(
+                "flex-col flex items-center border-2 rounded-md pt-1",
+                { "bg-blue-500 text-white": questionTypes.major }
+              )}
+              onClick={() => {
+                setQuestionTypes({
+                  ...questionTypes,
+                  major: !questionTypes.major,
+                });
+              }}
+            >
+              <Music />
+              <p>Major</p>
+            </button>
+            <button
+              className={cn(
+                "flex-col flex items-center border-2 rounded-md pt-1",
+                { "bg-blue-500 text-white": questionTypes.minor }
+              )}
+              onClick={() => {
+                setQuestionTypes({
+                  ...questionTypes,
+                  minor: !questionTypes.minor,
+                });
+              }}
+            >
+              <Music3 />
+              <p>Minor</p>
+            </button>
+            <button
+              className={cn(
+                "flex-col flex items-center border-2 rounded-md pt-1",
+                { "bg-blue-500 text-white": questionTypes.guitar }
+              )}
+              onClick={() => {
+                setQuestionTypes({
+                  ...questionTypes,
+                  guitar: !questionTypes.guitar,
+                });
+              }}
+            >
+              <Guitar />
+              <p>Guitar</p>
+            </button>
+          </div>
+          <Button
+            variant={"ghost"}
+            onClick={() => {
+              setGameMode("Mid");
+              timeDispatch("START_CLOCK");
+              intervalCatch();
+            }}
+          >
+            START
+          </Button>
+        </CardContent>
+      </>
+    );
+  };
+
   const MidGameBoard: React.FC = () => {
     return (
       <>
@@ -113,19 +189,7 @@ const GameBoard: React.FC<GameBoardProps> = () => {
 
   return (
     <Card className="w-full max-w-2xl">
-      {gameMode === "Pre" && (
-        <div className="flex justify-center">
-          <Button
-            onClick={() => {
-              setGameMode("Mid");
-              timeDispatch("START_CLOCK");
-              intervalCatch();
-            }}
-          >
-            PLAY
-          </Button>
-        </div>
-      )}
+      {gameMode === "Pre" && <PreGameBoard />}
       {gameMode === "Mid" && <MidGameBoard />}
     </Card>
   );

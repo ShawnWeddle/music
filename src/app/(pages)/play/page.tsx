@@ -1,9 +1,9 @@
-import Menu from "@/components/menu";
+import GameBoard from "@/components/game";
 
-export default function Home() {
+export default function Play() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <Menu />
+      <GameBoard />
     </main>
   );
 }
