@@ -28,10 +28,32 @@ type StringQuestionType = {
   hasBeenAnswered: boolean,
 }
 
+export type QuizOptionsType = {
+  major: boolean,
+  minor: boolean,
+  guitar: boolean,
+}
+
 export type QuestionType = StringQuestionType | ScaleQuestionType;
 
-export const scaleQuestions = (amountQ: number): FullQuizType => {
+export const emptyFullQuiz: FullQuizType = {
+  questions: [],
+  questionsAnswered: 0,
+  questionsCorrect: 0,
+}
+
+export const generateQuestions = (amountQ: number, options: QuizOptionsType): FullQuizType => {
   if(amountQ < 0 && amountQ > 100){
+    return {
+      questions: [],
+      questionsAnswered: 0,
+      questionsCorrect: 0,
+    };
+  }
+
+  const { major, minor, guitar } = options;
+
+  if(!major && !minor && !guitar){
     return {
       questions: [],
       questionsAnswered: 0,
@@ -97,10 +119,40 @@ export const scaleQuestions = (amountQ: number): FullQuizType => {
   }
 
   const questions: (ScaleQuestionType | StringQuestionType)[] = [];
-  for(let i = 0; i < amountQ; i += 3){
-    questions[i] = majorQuestion();
-    questions[i + 1] = minorQuestion();
-    questions[i + 2] = stringQuestion();
+
+  if(major && minor && guitar){
+    for(let i = 0; i < amountQ; i += 3){
+      questions[i] = majorQuestion();
+      questions[i + 1] = minorQuestion();
+      questions[i + 2] = stringQuestion();
+    }
+  } else if (major && minor && !guitar) {
+    for(let i = 0; i < amountQ; i += 2){
+      questions[i] = majorQuestion();
+      questions[i + 1] = minorQuestion();
+    }
+  } else if (major && !minor && guitar) {
+    for(let i = 0; i < amountQ; i += 2){
+      questions[i] = majorQuestion();
+      questions[i + 1] = stringQuestion();
+    }
+  } else if (!major && minor && guitar) {
+    for(let i = 0; i < amountQ; i += 2){
+      questions[i] = minorQuestion();
+      questions[i + 1] = stringQuestion();
+    }
+  } else if (major && !minor && !guitar) {
+    for(let i = 0; i < amountQ; i++){
+      questions[i] = majorQuestion();
+    }
+  } else if (!major && minor && !guitar) {
+    for(let i = 0; i < amountQ; i++){
+      questions[i] = minorQuestion();
+    }
+  } else if (!major && !minor && guitar) {
+    for(let i = 0; i < amountQ; i++){
+      questions[i] = stringQuestion();
+    }
   }
 
   return {

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { FullQuizType, QuestionType } from "@/app/questions";
+import { FullQuizType, QuestionType, QuizOptionsType } from "@/app/questions";
 import {
   Card,
   CardContent,
@@ -12,37 +12,27 @@ import {
 import { Guitar, Music, Music3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NoteType, Notes, buttonNameMap } from "@/data";
-import { generateQuestions, emptyFullQuiz } from "@/actions/game.actions";
-import { ordinate, secondsTo } from "@/lib/timing";
-import { useTimeContext } from "@/reducer/TimeContext";
+import { generateQuestions, emptyFullQuiz } from "@/app/questions";
+import { ordinate } from "@/lib/timing";
+import { TimeContextProvider } from "@/reducer/TimeContext";
+import TimeBar from "./TimePoint";
 
 interface GameBoardProps {
   hello?: boolean;
 }
 
+export type GameModeType = "Pre" | "Mid" | "Post";
+
 const GameBoard: React.FC<GameBoardProps> = () => {
-  const [gameMode, setGameMode] = useState<"Pre" | "Mid" | "Post">("Pre");
+  const [gameMode, setGameMode] = useState<GameModeType>("Pre");
   const [gameQuestions, setGameQuestions] =
     useState<FullQuizType>(emptyFullQuiz);
   const [activeQuestion, setActiveQuestion] = useState<QuestionType>();
-  const [questionTypes, setQuestionTypes] = useState({
+  const [questionOptions, setQuestionOptions] = useState<QuizOptionsType>({
     major: true,
     minor: true,
     guitar: true,
   });
-  const { timeState, timeDispatch } = useTimeContext();
-
-  useEffect(() => {
-    const gq = generateQuestions(30);
-    setGameQuestions(gq);
-    setActiveQuestion(gq.questions[0]);
-  }, []);
-
-  const intervalCatch = () => {
-    setInterval(() => {
-      timeDispatch("NEW_SECOND");
-    }, 1000);
-  };
 
   const questionString = (q: QuestionType): string => {
     if (q.type === "Scale") {
@@ -70,7 +60,6 @@ const GameBoard: React.FC<GameBoardProps> = () => {
       if (editQuestion.correctAnswer === note) {
         editFull.questionsCorrect++;
       } else {
-        timeDispatch("WRONG_ANSWER");
       }
       editFull.questionsAnswered++;
 
@@ -99,20 +88,20 @@ const GameBoard: React.FC<GameBoardProps> = () => {
   const PreGameBoard: React.FC = () => {
     return (
       <>
-        <CardHeader>
+        <CardHeader className="text-center">
           <CardTitle>Play the Game</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col items-center">
           <div className="grid grid-cols-3 w-48 gap-1">
             <button
               className={cn(
                 "flex-col flex items-center border-2 rounded-md pt-1",
-                { "bg-blue-500 text-white": questionTypes.major }
+                { "bg-blue-500 text-white": questionOptions.major }
               )}
               onClick={() => {
-                setQuestionTypes({
-                  ...questionTypes,
-                  major: !questionTypes.major,
+                setQuestionOptions({
+                  ...questionOptions,
+                  major: !questionOptions.major,
                 });
               }}
             >
@@ -122,12 +111,12 @@ const GameBoard: React.FC<GameBoardProps> = () => {
             <button
               className={cn(
                 "flex-col flex items-center border-2 rounded-md pt-1",
-                { "bg-blue-500 text-white": questionTypes.minor }
+                { "bg-blue-500 text-white": questionOptions.minor }
               )}
               onClick={() => {
-                setQuestionTypes({
-                  ...questionTypes,
-                  minor: !questionTypes.minor,
+                setQuestionOptions({
+                  ...questionOptions,
+                  minor: !questionOptions.minor,
                 });
               }}
             >
@@ -137,12 +126,12 @@ const GameBoard: React.FC<GameBoardProps> = () => {
             <button
               className={cn(
                 "flex-col flex items-center border-2 rounded-md pt-1",
-                { "bg-blue-500 text-white": questionTypes.guitar }
+                { "bg-blue-500 text-white": questionOptions.guitar }
               )}
               onClick={() => {
-                setQuestionTypes({
-                  ...questionTypes,
-                  guitar: !questionTypes.guitar,
+                setQuestionOptions({
+                  ...questionOptions,
+                  guitar: !questionOptions.guitar,
                 });
               }}
             >
@@ -153,9 +142,10 @@ const GameBoard: React.FC<GameBoardProps> = () => {
           <Button
             variant={"ghost"}
             onClick={() => {
+              const gq = generateQuestions(30, questionOptions);
+              setGameQuestions(gq);
+              setActiveQuestion(gq.questions[0]);
               setGameMode("Mid");
-              timeDispatch("START_CLOCK");
-              intervalCatch();
             }}
           >
             START
@@ -176,9 +166,6 @@ const GameBoard: React.FC<GameBoardProps> = () => {
             Question {gameQuestions.questionsAnswered + 1}/
             {gameQuestions.questions.length}
           </CardDescription>
-          <CardDescription className="text-right">
-            {secondsTo(timeState.seconds)}
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <AnswerButtons />
@@ -187,11 +174,26 @@ const GameBoard: React.FC<GameBoardProps> = () => {
     );
   };
 
+  interface TimingPointProps {
+    mode: GameModeType;
+  }
+
+  const TimingPoint: React.FC<TimingPointProps> = (props: TimingPointProps) => {
+    return (
+      <TimeContextProvider>
+        <TimeBar mode={props.mode} />
+      </TimeContextProvider>
+    );
+  };
+
   return (
-    <Card className="w-full max-w-2xl">
-      {gameMode === "Pre" && <PreGameBoard />}
-      {gameMode === "Mid" && <MidGameBoard />}
-    </Card>
+    <>
+      <TimingPoint mode={gameMode} />
+      <Card className="w-full max-w-2xl">
+        {gameMode === "Pre" && <PreGameBoard />}
+        {gameMode === "Mid" && <MidGameBoard />}
+      </Card>
+    </>
   );
 };
 
