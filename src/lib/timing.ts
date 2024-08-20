@@ -22,6 +22,14 @@ export function secondsTo(num:number): String {
   return minutes + ":" + lst;
 }
 
+export function millisecondsTo(num:number): String {
+  const minutes = Math.floor((num/60000)).toString();
+  const leftoverMilliseconds = num % 60000;
+  const leftoverSeconds = leftoverMilliseconds / 1000;
+  const lst = leftoverSeconds < 10 ? "0"+leftoverSeconds.toFixed(3) : leftoverSeconds.toFixed(3)
+  return minutes + ":" + lst;
+}
+
 export function finalTime(startTime: number, endTime: number, penalties: number) {
   const subTime = endTime - startTime; // In milliseconds
   const penaltyTime = penalties * 5000;

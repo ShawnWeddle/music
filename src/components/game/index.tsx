@@ -15,7 +15,7 @@ import { Guitar, Music, Music3, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NoteType, Notes, buttonNameMap } from "@/data";
 import { generateQuestions, emptyFullQuiz } from "@/app/questions";
-import { ordinate } from "@/lib/timing";
+import { ordinate, secondsTo, millisecondsTo, finalTime } from "@/lib/timing";
 import Timer from "./Timer";
 
 interface GameBoardProps {
@@ -36,7 +36,11 @@ const GameBoard: React.FC<GameBoardProps> = () => {
   });
   const [startTime, setStartTime] = useState(0);
   const [endTime, setEndTime] = useState(0);
-  const [penalties, setPenalties] = useState(0);
+  const [penalties, setPenalties] = useState({
+    major: 0,
+    minor: 0,
+    guitar: 0,
+  });
 
   const questionString = (q: QuestionType): string => {
     if (q.type === "Scale") {
@@ -64,7 +68,15 @@ const GameBoard: React.FC<GameBoardProps> = () => {
       if (editQuestion.correctAnswer === note) {
         editFull.questionsCorrect++;
       } else {
-        setPenalties(penalties + 1);
+        if (activeQuestion.type === "Scale") {
+          if (activeQuestion.mode === "Major") {
+            setPenalties({ ...penalties, major: penalties.major + 1 });
+          } else {
+            setPenalties({ ...penalties, minor: penalties.minor + 1 });
+          }
+        } else {
+          setPenalties({ ...penalties, guitar: penalties.guitar + 1 });
+        }
       }
       editFull.questionsAnswered++;
 
@@ -215,6 +227,8 @@ const GameBoard: React.FC<GameBoardProps> = () => {
   };
 
   const PostGameBoard: React.FC = () => {
+    const totalPenalties = penalties.major + penalties.minor + penalties.guitar;
+    const ft = finalTime(startTime, endTime, totalPenalties);
     return (
       <>
         <CardHeader>
@@ -225,10 +239,48 @@ const GameBoard: React.FC<GameBoardProps> = () => {
               </Link>
             </button>
           </CardTitle>
-          <CardTitle>Your final time is...</CardTitle>
+          <CardTitle className="text-center">
+            Good job! Your time is {millisecondsTo(ft.totalTime)}
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          {startTime} / {endTime}
+        <CardContent className="flex flex-col gap-3 items-center">
+          <table>
+            <tbody>
+              <tr className="font-semibold">
+                <td>Overall</td>
+                <td className="text-right">{30 - totalPenalties}/30</td>
+              </tr>
+              <tr>
+                <td>Major</td>
+                <td className="text-right">{10 - penalties.major}/10</td>
+              </tr>
+              <tr>
+                <td>Minor</td>
+                <td className="text-right">{10 - penalties.minor}/10</td>
+              </tr>
+              <tr>
+                <td>Guitar</td>
+                <td className="text-right">{10 - penalties.guitar}/10</td>
+              </tr>
+              <tr className="block h-4"></tr>
+              <tr>
+                <td></td>
+                <td>{millisecondsTo(ft.subTime)}</td>
+              </tr>
+              <tr className="text-red-500 border-b border-black">
+                <td>{totalPenalties} incorrect + </td>
+                <td>{millisecondsTo(ft.penaltyTime)}</td>
+              </tr>
+              <tr className="font-bold">
+                <td>Final: </td>
+                <td>{millisecondsTo(ft.totalTime)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <button>Play Again</button>
+          <button>Change Settings</button>
+          <button>Back to Menu</button>
         </CardContent>
       </>
     );
