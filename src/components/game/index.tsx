@@ -1,21 +1,22 @@
 "use client";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import { FullQuizType, QuestionType, QuizOptionsType } from "@/app/questions";
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Guitar, Music, Music3 } from "lucide-react";
+import { Guitar, Music, Music3, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NoteType, Notes, buttonNameMap } from "@/data";
 import { generateQuestions, emptyFullQuiz } from "@/app/questions";
 import { ordinate } from "@/lib/timing";
-import { TimeContextProvider } from "@/reducer/TimeContext";
-import TimeBar from "./TimePoint";
+import Timer from "./Timer";
 
 interface GameBoardProps {
   hello?: boolean;
@@ -33,6 +34,9 @@ const GameBoard: React.FC<GameBoardProps> = () => {
     minor: true,
     guitar: true,
   });
+  const [startTime, setStartTime] = useState(0);
+  const [endTime, setEndTime] = useState(0);
+  const [penalties, setPenalties] = useState(0);
 
   const questionString = (q: QuestionType): string => {
     if (q.type === "Scale") {
@@ -60,11 +64,16 @@ const GameBoard: React.FC<GameBoardProps> = () => {
       if (editQuestion.correctAnswer === note) {
         editFull.questionsCorrect++;
       } else {
+        setPenalties(penalties + 1);
       }
       editFull.questionsAnswered++;
 
       setGameQuestions(editFull);
       setActiveQuestion(gameQuestions.questions[activeIndex + 1]);
+    }
+    if (activeIndex === 29) {
+      setEndTime(Date.now());
+      setGameMode("Post");
     }
   };
 
@@ -86,71 +95,90 @@ const GameBoard: React.FC<GameBoardProps> = () => {
   };
 
   const PreGameBoard: React.FC = () => {
+    const { major, minor, guitar } = questionOptions;
     return (
       <>
-        <CardHeader className="text-center">
-          <CardTitle>Play the Game</CardTitle>
+        <CardHeader>
+          <CardTitle>
+            <button className="pr-2">
+              <Link href={"/"}>
+                <ArrowLeft />
+              </Link>
+            </button>
+          </CardTitle>
+          <CardTitle className="text-center">Practice Mode</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center">
-          <div className="grid grid-cols-3 w-48 gap-1">
+          <div className="grid grid-cols-3">
             <button
               className={cn(
-                "flex-col flex items-center border-2 rounded-md pt-1",
-                { "bg-blue-500 text-white": questionOptions.major }
+                "flex-col flex items-center border-2 rounded-md py-0 px-1 m-2 transition-colors",
+                { "bg-blue-500 text-white py-1 px-2 m-1": major }
               )}
               onClick={() => {
                 setQuestionOptions({
                   ...questionOptions,
-                  major: !questionOptions.major,
+                  major: !major,
                 });
               }}
             >
-              <Music />
+              <div className="pt-1">
+                <Music />
+              </div>
               <p>Major</p>
             </button>
             <button
               className={cn(
-                "flex-col flex items-center border-2 rounded-md pt-1",
-                { "bg-blue-500 text-white": questionOptions.minor }
+                "flex-col flex items-center border-2 rounded-md py-0 px-1 m-2 transition-colors",
+                { "bg-blue-500 text-white py-1 px-2 m-1": minor }
               )}
               onClick={() => {
                 setQuestionOptions({
                   ...questionOptions,
-                  minor: !questionOptions.minor,
+                  minor: !minor,
                 });
               }}
             >
-              <Music3 />
+              <div className="pt-1">
+                <Music3 />
+              </div>
               <p>Minor</p>
             </button>
             <button
               className={cn(
-                "flex-col flex items-center border-2 rounded-md pt-1",
-                { "bg-blue-500 text-white": questionOptions.guitar }
+                "flex-col flex items-center border-2 rounded-md py-0 px-1 m-2 transition-colors",
+                { "bg-blue-500 text-white py-1 px-2 m-1": guitar }
               )}
               onClick={() => {
                 setQuestionOptions({
                   ...questionOptions,
-                  guitar: !questionOptions.guitar,
+                  guitar: !guitar,
                 });
               }}
             >
-              <Guitar />
+              <div className="pt-1">
+                <Guitar />
+              </div>
               <p>Guitar</p>
             </button>
           </div>
+        </CardContent>
+        <CardFooter className="flex justify-center">
           <Button
-            variant={"ghost"}
+            variant={"outline"}
+            className="text-2xl"
+            disabled={!major && !minor && !guitar}
             onClick={() => {
               const gq = generateQuestions(30, questionOptions);
               setGameQuestions(gq);
               setActiveQuestion(gq.questions[0]);
+              setStartTime(Date.now());
               setGameMode("Mid");
             }}
           >
-            START
+            Start
           </Button>
-        </CardContent>
+        </CardFooter>
       </>
     );
   };
@@ -159,6 +187,18 @@ const GameBoard: React.FC<GameBoardProps> = () => {
     return (
       <>
         <CardHeader>
+          <CardTitle>
+            <button
+              className="pr-2"
+              onClick={() => {
+                setStartTime(0);
+                setGameMode("Pre");
+              }}
+            >
+              <ArrowLeft />
+            </button>
+          </CardTitle>
+          <Timer origin={startTime} />
           <CardTitle>
             {activeQuestion && questionString(activeQuestion)}
           </CardTitle>
@@ -174,24 +214,32 @@ const GameBoard: React.FC<GameBoardProps> = () => {
     );
   };
 
-  interface TimingPointProps {
-    mode: GameModeType;
-  }
-
-  const TimingPoint: React.FC<TimingPointProps> = (props: TimingPointProps) => {
+  const PostGameBoard: React.FC = () => {
     return (
-      <TimeContextProvider>
-        <TimeBar mode={props.mode} />
-      </TimeContextProvider>
+      <>
+        <CardHeader>
+          <CardTitle>
+            <button className="pr-2">
+              <Link href={"/"}>
+                <ArrowLeft />
+              </Link>
+            </button>
+          </CardTitle>
+          <CardTitle>Your final time is...</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {startTime} / {endTime}
+        </CardContent>
+      </>
     );
   };
 
   return (
     <>
-      <TimingPoint mode={gameMode} />
       <Card className="w-full max-w-2xl">
         {gameMode === "Pre" && <PreGameBoard />}
         {gameMode === "Mid" && <MidGameBoard />}
+        {gameMode === "Post" && <PostGameBoard />}
       </Card>
     </>
   );

@@ -21,3 +21,14 @@ export function secondsTo(num:number): String {
   const lst = leftoverSeconds < 10 ? "0"+leftoverSeconds.toString() : leftoverSeconds.toString()
   return minutes + ":" + lst;
 }
+
+export function finalTime(startTime: number, endTime: number, penalties: number) {
+  const subTime = endTime - startTime; // In milliseconds
+  const penaltyTime = penalties * 5000;
+  const totalTime = subTime + penaltyTime;
+  return {
+    subTime,
+    penaltyTime,
+    totalTime,
+  }
+}
