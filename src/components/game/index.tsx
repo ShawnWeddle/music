@@ -2,7 +2,11 @@
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { FullQuizType, QuestionType, QuizOptionsType } from "@/app/questions";
+import {
+  FullQuizType,
+  QuestionType,
+  QuestionOptionsType,
+} from "@/app/questions";
 import {
   Card,
   CardContent,
@@ -29,7 +33,7 @@ const GameBoard: React.FC<GameBoardProps> = () => {
   const [gameQuestions, setGameQuestions] =
     useState<FullQuizType>(emptyFullQuiz);
   const [activeQuestion, setActiveQuestion] = useState<QuestionType>();
-  const [questionOptions, setQuestionOptions] = useState<QuizOptionsType>({
+  const [questionOptions, setQuestionOptions] = useState<QuestionOptionsType>({
     major: true,
     minor: true,
     guitar: true,
@@ -250,18 +254,33 @@ const GameBoard: React.FC<GameBoardProps> = () => {
                 <td>Overall</td>
                 <td className="text-right">{30 - totalPenalties}/30</td>
               </tr>
-              <tr>
-                <td>Major</td>
-                <td className="text-right">{10 - penalties.major}/10</td>
-              </tr>
-              <tr>
-                <td>Minor</td>
-                <td className="text-right">{10 - penalties.minor}/10</td>
-              </tr>
-              <tr>
-                <td>Guitar</td>
-                <td className="text-right">{10 - penalties.guitar}/10</td>
-              </tr>
+              {questionOptions.major && (
+                <tr>
+                  <td>Major</td>
+                  <td className="text-right">
+                    {gameQuestions.optionsMap.major - penalties.major}/
+                    {gameQuestions.optionsMap.major}
+                  </td>
+                </tr>
+              )}
+              {questionOptions.minor && (
+                <tr>
+                  <td>Minor</td>
+                  <td className="text-right">
+                    {gameQuestions.optionsMap.minor - penalties.minor}/
+                    {gameQuestions.optionsMap.minor}
+                  </td>
+                </tr>
+              )}
+              {questionOptions.guitar && (
+                <tr>
+                  <td>Guitar</td>
+                  <td className="text-right">
+                    {gameQuestions.optionsMap.guitar - penalties.guitar}/
+                    {gameQuestions.optionsMap.guitar}
+                  </td>
+                </tr>
+              )}
               <tr className="block h-4"></tr>
               <tr>
                 <td></td>
@@ -278,9 +297,40 @@ const GameBoard: React.FC<GameBoardProps> = () => {
             </tbody>
           </table>
 
-          <button>Play Again</button>
-          <button>Change Settings</button>
-          <button>Back to Menu</button>
+          <button
+            onClick={() => {
+              const gq = generateQuestions(30, questionOptions);
+              setGameQuestions(gq);
+              setActiveQuestion(gq.questions[0]);
+              setStartTime(Date.now());
+              setEndTime(0);
+              setPenalties({
+                major: 0,
+                minor: 0,
+                guitar: 0,
+              });
+              setGameMode("Mid");
+            }}
+          >
+            Play Again
+          </button>
+          <button
+            onClick={() => {
+              setStartTime(Date.now());
+              setEndTime(0);
+              setPenalties({
+                major: 0,
+                minor: 0,
+                guitar: 0,
+              });
+              setGameMode("Pre");
+            }}
+          >
+            Change Settings
+          </button>
+          <button>
+            <Link href={"/"}>Back to Menu</Link>
+          </button>
         </CardContent>
       </>
     );

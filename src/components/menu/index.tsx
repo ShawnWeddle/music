@@ -7,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "../ui/button";
 import Link from "next/link";
 
 interface MenuProps {
@@ -20,19 +19,25 @@ const Menu: React.FC<MenuProps> = () => {
       <CardHeader>
         <CardTitle className="text-center">Music Quiz</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col justify-center">
-        <Button variant={"ghost"} asChild>
-          <Link href={"/play"}>Play</Link>
-        </Button>
-        <Button variant={"ghost"} asChild>
+      <CardContent className="flex flex-col items-center">
+        <button className="whitespace-nowrap rounded-md w-min p-1 m-1 font-bold text-2xl hover:bg-accent hover:text-accent-foreground disabled:text-accent/50">
+          <Link href={"/practice"}>Practice</Link>
+        </button>
+        <button
+          disabled
+          className="whitespace-nowrap rounded-md w-min p-1 m-1 font-bold text-2xl disabled:text-foreground/50"
+        >
+          Quiz
+        </button>
+        <button className="whitespace-nowrap rounded-md w-min p-1 m-1 font-bold text-2xl hover:bg-accent hover:text-accent-foreground disabled:text-accent/50">
           <Link href={"/leaderboard"}>Leaderboard</Link>
-        </Button>
-        <Button variant={"ghost"} asChild>
+        </button>
+        <button className="whitespace-nowrap rounded-md w-min p-1 m-1 font-bold text-2xl hover:bg-accent hover:text-accent-foreground disabled:text-accent/50">
           <Link href={"/how-to-play"}>How to Play</Link>
-        </Button>
-        <Button variant={"ghost"} asChild>
+        </button>
+        <button className="whitespace-nowrap rounded-md w-min p-1 m-1 font-bold text-2xl hover:bg-accent hover:text-accent-foreground disabled:text-accent/50">
           <Link href={"/sign-in"}>Sign In</Link>
-        </Button>
+        </button>
       </CardContent>
     </Card>
   );
