@@ -17,7 +17,7 @@ const Menu: React.FC<MenuProps> = () => {
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
-        <CardTitle className="text-center">Music Quiz</CardTitle>
+        <CardTitle className="text-center text-4xl">Music Quiz</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col items-center">
         <button className="whitespace-nowrap rounded-md w-min p-1 m-1 font-bold text-2xl hover:bg-accent hover:text-accent-foreground disabled:text-accent/50">
@@ -29,11 +29,17 @@ const Menu: React.FC<MenuProps> = () => {
         >
           Quiz
         </button>
-        <button className="whitespace-nowrap rounded-md w-min p-1 m-1 font-bold text-2xl hover:bg-accent hover:text-accent-foreground disabled:text-accent/50">
-          <Link href={"/leaderboard"}>Leaderboard</Link>
+        <button
+          disabled
+          className="whitespace-nowrap rounded-md w-min p-1 m-1 font-bold text-2xl disabled:text-foreground/50"
+        >
+          Leaderboard
         </button>
-        <button className="whitespace-nowrap rounded-md w-min p-1 m-1 font-bold text-2xl hover:bg-accent hover:text-accent-foreground disabled:text-accent/50">
-          <Link href={"/how-to-play"}>How to Play</Link>
+        <button
+          disabled
+          className="whitespace-nowrap rounded-md w-min p-1 m-1 font-bold text-2xl disabled:text-foreground/50"
+        >
+          How to Play
         </button>
         <button className="whitespace-nowrap rounded-md w-min p-1 m-1 font-bold text-2xl hover:bg-accent hover:text-accent-foreground disabled:text-accent/50">
           <Link href={"/sign-in"}>Sign In</Link>
